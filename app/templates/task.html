@@ -1,0 +1,19 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student To-Do List</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Your Tasks</h2>
+        <form method="POST" action="{{ url_for('add_task') }}">
+            <!-- Add task form here -->
+        </form>
+        <div id="task-list">
+            <!-- Render tasks here -->
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Student To-Do App{% endblock %}
+
+{% block content %}
+<h2>Register</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <label for="username">Username</label>
+        {{ form.username(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        {{ form.email(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        {{ form.password(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        {{ form.confirm_password(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+{% endblock %}
+

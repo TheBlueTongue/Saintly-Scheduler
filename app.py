@@ -1,128 +1,135 @@
-# app.py
-from flask import Flask, Blueprint, render_template, redirect, url_for, flash, request
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
-from datetime import datetime
+from flask import Flask, render_template, redirect, url_for, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from sqlalchemy.exc import IntegrityError
+from werkzeug.security import generate_password_hash, check_password_hash
+from database_setup import SessionLocal, User, Task
+import forms
 
-# Initialize Flask app and database
+
+# Set up Flask app and login manager
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with a real secret key
 
-db = SQLAlchemy(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Redirect to login page if user is not authenticated
 
-# Models
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
-    tasks = db.relationship('Task', backref='owner', lazy=True)
-
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(150), nullable=False)
-    category = db.Column(db.String(50), nullable=False)
-    due_date = db.Column(db.Date, nullable=True)
-    is_complete = db.Column(db.Boolean, default=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-# Forms
-class TaskForm(FlaskForm):
-    title = StringField('Task Title', validators=[DataRequired()])
-    description = TextAreaField('Description')
-    category = StringField('Category', validators=[DataRequired()])
-    due_date = DateField('Due Date', format='%Y-%m-%d', validators=[DataRequired()])
-    submit = SubmitField('Add Task')
-
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
-
-# Load user function for login
+# Session management function
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    session = SessionLocal()
+    user = session.query(User).get(int(user_id))
+    session.close()
+    return user
 
-# Routes
-@app.route('/')
-def index():
-    return redirect(url_for('tasks'))
+# Route for registering a new user
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = forms.RegisterForm()
+    if form.validate_on_submit():
+        session = SessionLocal()
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        new_user = User(username=form.username.data, password=hashed_password)
+        session.add(new_user)
+        try:
+            session.commit()
+            flash('Account created successfully!', 'success')
+            return redirect(url_for('login'))
+        except IntegrityError:
+            session.rollback()
+            flash('Username already exists. Please choose a different one.', 'danger')
+        finally:
+            session.close()
+    return render_template('register.html', form=form)
 
+# Route for logging in an existing user
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    form = forms.LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        session = SessionLocal()
+        user = session.query(User).filter_by(username=form.username.data).first()
+        session.close()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             flash('Logged in successfully!', 'success')
             return redirect(url_for('tasks'))
-        flash('Login failed. Check your credentials and try again.', 'danger')
+        flash('Invalid username or password', 'danger')
     return render_template('login.html', form=form)
 
+# Route for logging out
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully!', 'success')
+    return redirect(url_for('login'))
+
+# Route for displaying the list of tasks and adding a new task
 @app.route('/tasks', methods=['GET', 'POST'])
 @login_required
 def tasks():
-    form = TaskForm()  # Initialize the TaskForm
+    form = forms.TaskForm()
+    session = SessionLocal()
     if form.validate_on_submit():
-        # Create a new task from the form data
-        task = Task(
+        new_task = Task(
             title=form.title.data,
-            description=form.description.data,
             category=form.category.data,
             due_date=form.due_date.data,
             user_id=current_user.id
         )
-        db.session.add(task)
-        db.session.commit()
-        flash('Your task has been added!', 'success')
+        session.add(new_task)
+        session.commit()
+        flash('Task added successfully!', 'success')
         return redirect(url_for('tasks'))
     
-    # Query the database for the current user's tasks
-    tasks = Task.query.filter_by(user_id=current_user.id).all()
-    return render_template('task.html', form=form, tasks=tasks)
+    user_tasks = session.query(Task).filter_by(user_id=current_user.id).all()
+    session.close()
+    return render_template('task.html', form=form, tasks=user_tasks)
 
+# Route for editing an existing task
 @app.route('/tasks/edit/<int:task_id>', methods=['GET', 'POST'])
 @login_required
 def edit_task(task_id):
-    task = Task.query.get_or_404(task_id)
-    if task.user_id != current_user.id:
-        flash('You cannot edit this task!', 'danger')
+    session = SessionLocal()
+    task = session.query(Task).get(task_id)
+    if not task or task.user_id != current_user.id:
+        flash('Task not found or access denied', 'danger')
         return redirect(url_for('tasks'))
 
-    form = TaskForm(obj=task)
+    form = forms.TaskForm(obj=task)
     if form.validate_on_submit():
         task.title = form.title.data
-        task.description = form.description.data
         task.category = form.category.data
         task.due_date = form.due_date.data
-        db.session.commit()
-        flash('Your task has been updated!', 'success')
+        session.commit()
+        flash('Task updated successfully!', 'success')
         return redirect(url_for('tasks'))
-
+    
+    session.close()
     return render_template('edit_task.html', form=form, task=task)
 
+# Route for deleting a task
 @app.route('/tasks/delete/<int:task_id>', methods=['POST'])
 @login_required
 def delete_task(task_id):
-    task = Task.query.get_or_404(task_id)
-    if task.user_id != current_user.id:
-        flash('You cannot delete this task!', 'danger')
-        return redirect(url_for('tasks'))
-
-    db.session.delete(task)
-    db.session.commit()
-    flash('Your task has been deleted.', 'success')
+    session = SessionLocal()
+    task = session.query(Task).get(task_id)
+    if task and task.user_id == current_user.id:
+        session.delete(task)
+        session.commit()
+        flash('Task deleted successfully', 'success')
+    else:
+        flash('Task not found or access denied', 'danger')
+    
+    session.close()
     return redirect(url_for('tasks'))
 
-# Run the app
-if __name__ == "__main__":
-    db.create_all()
+# Route for the home page (redirects to tasks)
+@app.route('/')
+def home():
+    return redirect(url_for('tasks'))
+
+if __name__ == '__main__':
     app.run(debug=True)
+

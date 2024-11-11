@@ -10,9 +10,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with a real secret key
 
 login_manager = LoginManager()
-login_manager.init_app (app)
+login_manager.init_app(app)
 login_manager.login_view = 'login'  # Redirect to login page if user is not authenticated
 
+# Route for the welcome page
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
@@ -128,10 +129,25 @@ def delete_task(task_id):
     session.close()
     return redirect(url_for('tasks'))
 
-# Route for the home page (redirects to tasks)
-@app.route('/')
-def home():
-    return redirect(url_for('tasks'))
+@app.route('/tasks/add', methods=['GET', 'POST'])
+@login_required
+def add_task():
+    form = forms.TaskForm()
+    if form.validate_on_submit():
+        session = SessionLocal()
+        new_task = Task(
+            title=form.title.data,
+            category=form.category.data,
+            due_date=form.due_date.data,
+            user_id=current_user.id
+        )
+        session.add(new_task)
+        session.commit()
+        session.close()
+        flash('Task added successfully!', 'success')
+        return redirect(url_for('tasks'))
+    return render_template('add_task.html', form=form)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -138,6 +138,7 @@ def add_task():
         new_task = Task(
             title=form.title.data,
             category=form.category.data,
+            description=form.description.data,
             due_date=form.due_date.data,
             user_id=current_user.id
         )

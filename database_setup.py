@@ -25,6 +25,7 @@ class Task(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(150), nullable=False)
     category = Column(String(50), nullable=False)
+    description = Column(String(500), nullable=True)
     due_date = Column(Date, nullable=True)
     is_complete = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)

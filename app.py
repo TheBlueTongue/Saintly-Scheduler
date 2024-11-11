@@ -5,14 +5,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from database_setup import SessionLocal, User, Task
 import forms
 
-
 # Set up Flask app and login manager
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with a real secret key
 
 login_manager = LoginManager()
-login_manager.init_app(app)
+login_manager.init_app (app)
 login_manager.login_view = 'login'  # Redirect to login page if user is not authenticated
+
+@app.route('/')
+def welcome():
+    return render_template('welcome.html')
 
 # Session management function
 @login_manager.user_loader
@@ -28,7 +31,7 @@ def register():
     form = forms.RegisterForm()
     if form.validate_on_submit():
         session = SessionLocal()
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        hashed_password = generate_password_hash(form.password.data, method='pbkdf2:sha256')
         new_user = User(username=form.username.data, password=hashed_password)
         session.add(new_user)
         try:
@@ -85,7 +88,7 @@ def tasks():
     
     user_tasks = session.query(Task).filter_by(user_id=current_user.id).all()
     session.close()
-    return render_template('task.html', form=form, tasks=user_tasks)
+    return render_template('tasks.html', form=form, tasks=user_tasks)
 
 # Route for editing an existing task
 @app.route('/tasks/edit/<int:task_id>', methods=['GET', 'POST'])

@@ -1,6 +1,78 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Welcome to Our Website!</h1>
-    <p>We are glad to have you here. Explore our content and enjoy your stay.</p>
+    <div class="container mt-5">
+        <!-- Welcome Section -->
+        <div class="jumbotron text-center bg-primary text-white">
+            <h1 class="display-4">Welcome to Saintly Scheduler!</h1>
+            <p class="lead">Your ultimate tool for organized and stress-free planning.</p>
+            <hr class="my-4">
+            <p>Join us on a journey to streamline your tasks and achieve academic excellence with ease.</p>
+        </div>
+
+        <!-- About Section -->
+        <section class="about-section my-5">
+            <h2 class="text-center text-secondary">About Saintly Scheduler</h2>
+            <p class="text-center mt-3 mb-5">Saintly Scheduler is a dedicated platform designed to help students at Saint Augustine's manage their tasks, assignments, and schedules efficiently. With intuitive features and a clean interface, Saintly Scheduler makes task management seamless and enjoyable.</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="{{ url_for('static', filename='images/about1.jpg') }}" alt="Student Studying" class="img-fluid rounded">
+                </div>
+                <div class="col-md-6">
+                    <img src="{{ url_for('static', filename='images/about2.jpg') }}" alt="Organized Desk" class="img-fluid rounded">
+                </div>
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section class="reviews-section my-5">
+            <h2 class="text-center text-secondary">What Our Users Say</h2>
+            <div class="row my-4">
+                <div class="col-md-4 text-center">
+                    <div class="card bg-light shadow-sm p-4">
+                        <blockquote class="blockquote">
+                            <p class="mb-0">"Saintly Scheduler has changed the way I manage my assignments. Now I'm never late!"</p>
+                            <footer class="blockquote-footer">John D., Senior Student</footer>
+                        </blockquote>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="card bg-light shadow-sm p-4">
+                        <blockquote class="blockquote">
+                            <p class="mb-0">"A must-have app for anyone looking to stay organized and on top of tasks."</p>
+                            <footer class="blockquote-footer">Sarah L., Junior Student</footer>
+                        </blockquote>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="card bg-light shadow-sm p-4">
+                        <blockquote class="blockquote">
+                            <p class="mb-0">"Finally, an app that understands student life! It’s perfect."</p>
+                            <footer class="blockquote-footer">Mark T., Freshman</footer>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Gallery -->
+        <section class="gallery-section my-5">
+            <h2 class="text-center text-secondary">Explore Our Features</h2>
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <img src="{{ url_for('static', filename='images/feature1.jpg') }}" alt="Feature 1" class="img-fluid rounded shadow-sm mb-4">
+                </div>
+                <div class="col-md-3">
+                    <img src="{{ url_for('static', filename='images/feature2.jpg') }}" alt="Feature 2" class="img-fluid rounded shadow-sm mb-4">
+                </div>
+                <div class="col-md-3">
+                    <img src="{{ url_for('static', filename='images/feature3.jpg') }}" alt="Feature 3" class="img-fluid rounded shadow-sm mb-4">
+                </div>
+                <div class="col-md-3">
+                    <img src="{{ url_for('static', filename='images/feature4.jpg') }}" alt="Feature 4" class="img-fluid rounded shadow-sm mb-4">
+                </div>
+            </div>
+        </section>
+    </div>
 {% endblock %}

@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Student To-Do App{% endblock %}</title>
+    <title>{% block title %}Saintly Scheduler{% endblock %}</title>
     <!-- Add Bootstrap CSS or your own styles -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{{ url_for('tasks') }}">Saint Augustine's To-Do</a>
+        <!-- Replace "Home" with your logo image -->
+        <a class="navbar-brand" href="{{ url_for('tasks') }}">
+            <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="Saintly Scheduler Logo" style="height: 40px;">
+        </a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}

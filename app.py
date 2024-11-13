@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from database_setup import SessionLocal, User, Task
 import forms
+from flask import request
 
 # Set up Flask app and login manager
 app = Flask(__name__)
@@ -56,7 +57,7 @@ def login():
         session.close()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            flash('Logged in successfully!', 'success')
+            
             return redirect(url_for('tasks'))
         flash('Invalid username or password', 'danger')
     return render_template('login.html', form=form)
@@ -75,6 +76,8 @@ def logout():
 def tasks():
     form = forms.TaskForm()
     session = SessionLocal()
+
+    # Check if a new task is being submitted
     if form.validate_on_submit():
         new_task = Task(
             title=form.title.data,
@@ -86,10 +89,33 @@ def tasks():
         session.commit()
         flash('Task added successfully!', 'success')
         return redirect(url_for('tasks'))
+
+    # Get sorting parameters from the request arguments, defaulting to 'due_date' and 'asc'
+    sort_by = request.args.get('sort_by', 'due_date')
+    order = request.args.get('order', 'asc')
+
+    # Determine the column to sort by based on the `sort_by` parameter
+    if sort_by == 'title':
+        order_column = Task.title
+    elif sort_by == 'category':
+        order_column = Task.category
+    else:
+        order_column = Task.due_date  # Default to sorting by due date
+
+    # Apply ordering based on the `order` parameter
+    if order == 'desc':
+        order_column = order_column.desc()
+
+    # Query the tasks with sorting applied
+    user_tasks = session.query(Task).filter_by(user_id=current_user.id).order_by(order_column).all()
     
-    user_tasks = session.query(Task).filter_by(user_id=current_user.id).all()
+    # Close the session
     session.close()
-    return render_template('tasks.html', form=form, tasks=user_tasks)
+
+    # Render the template with tasks and current sorting parameters
+    return render_template('tasks.html', form=form, tasks=user_tasks, sort_by=sort_by, order=order)
+
+
 
 # Route for editing an existing task
 @app.route('/tasks/edit/<int:task_id>', methods=['GET', 'POST'])

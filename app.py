@@ -87,7 +87,7 @@ def tasks():
         )
         session.add(new_task)
         session.commit()
-        flash('Task added successfully!', 'success')
+        
         return redirect(url_for('tasks'))
 
     # Get sorting parameters from the request arguments, defaulting to 'due_date' and 'asc'
@@ -124,7 +124,7 @@ def edit_task(task_id):
     session = SessionLocal()
     task = session.query(Task).get(task_id)
     if not task or task.user_id != current_user.id:
-        flash('Task not found or access denied', 'danger')
+        
         return redirect(url_for('tasks'))
 
     form = forms.TaskForm(obj=task)
@@ -133,7 +133,7 @@ def edit_task(task_id):
         task.category = form.category.data
         task.due_date = form.due_date.data
         session.commit()
-        flash('Task updated successfully!', 'success')
+        
         return redirect(url_for('tasks'))
     
     session.close()
@@ -148,10 +148,7 @@ def delete_task(task_id):
     if task and task.user_id == current_user.id:
         session.delete(task)
         session.commit()
-        flash('Task deleted successfully', 'success')
-    else:
-        flash('Task not found or access denied', 'danger')
-    
+        
     session.close()
     return redirect(url_for('tasks'))
 
@@ -171,9 +168,29 @@ def add_task():
         session.add(new_task)
         session.commit()
         session.close()
-        flash('Task added successfully!', 'success')
+        
         return redirect(url_for('tasks'))
     return render_template('add_task.html', form=form)
+
+@app.route('/toggle_task_completion/<int:task_id>', methods=['POST'])
+@login_required
+def toggle_task_completion(task_id):
+    session = SessionLocal()
+    task = session.query(Task).get(task_id)
+    if task and task.user_id == current_user.id:
+        task.is_complete = not task.is_complete
+        session.commit()
+    
+    session.close()
+    
+    # Get the sorting parameters from the form
+    sort_by = request.form.get('sort_by', 'title')
+    order = request.form.get('order', 'asc')
+    
+    # Redirect back to tasks with sorting applied
+    return redirect(url_for('tasks', sort_by=sort_by, order=order))
+
+
 
 
 if __name__ == '__main__':

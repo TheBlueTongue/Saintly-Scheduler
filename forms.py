@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms import SelectField
 
 # Form for user login
 class LoginForm(FlaskForm):
@@ -21,6 +22,10 @@ class RegisterForm(FlaskForm):
 class TaskForm(FlaskForm):
     title = StringField('Task Title', validators=[DataRequired(), Length(max=150)])
     description = TextAreaField('Description', validators=[Length(max=500)])
-    category = StringField('Category', validators=[DataRequired(), Length(max=50)])
+    category = SelectField(
+        'Category',
+        choices=[('Study', 'Study'), ('Exam', 'Exam'), ('Sport', 'Sport'), 
+                 ('Social', 'Social'), ('Other', 'Other')],
+        validators=[DataRequired()])
     due_date = DateField('Due Date', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Add Task')

@@ -6,6 +6,7 @@ from database_setup import SessionLocal, User, Task
 import forms
 from flask import request
 from datetime import datetime
+from datetime import timedelta
 from flask import request, redirect, url_for, render_template
 
 # Set up Flask app and login manager
@@ -111,21 +112,26 @@ def tasks():
     # Query the tasks with sorting applied
     user_tasks = session.query(Task).filter_by(user_id=current_user.id).order_by(order_column).all()
 
-    # Pass the current date to calculate "Days Until Due"
+    # Calculate days until due for each task
     current_date = datetime.now().date()
+    tasks_with_days_until_due = [
+        {
+            'task': task,
+            'days_until_due': (task.due_date - current_date).days if task.due_date else None
+        }
+        for task in user_tasks
+    ]
 
     # Close the session
     session.close()
 
-    # Render the template with tasks, current sorting parameters, and current date
+    # Render the template with tasks, current sorting parameters, and days until due
     return render_template(
         'tasks.html',
         form=form,
-        tasks=user_tasks,
+        tasks=tasks_with_days_until_due,
         sort_by=sort_by,
-        order=order,
-        current_date=current_date
-    )
+        order=order)
 
 
 # Route for editing an existing task

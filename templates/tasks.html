@@ -10,7 +10,7 @@
     <a href="{{ url_for('add_task') }}" class="btn btn-success">Add Task</a>
 </div>
 
-<!-- Task List Table with sortable headers and Completed column -->
+<!-- Task List Table with sortable headers and Days Until Due column -->
 <table class="table">
     <thead>
         <tr>
@@ -26,7 +26,7 @@
             </th>
             <th>
                 <a href="{{ url_for('tasks', sort_by='due_date', order='asc' if sort_by != 'due_date' or order == 'desc' else 'desc') }}">
-                    Due Date {% if sort_by == 'due_date' %} {% if order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                    Days Until Due {% if sort_by == 'due_date' %} {% if order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
                 </a>
             </th>
             <th>Completed</th>
@@ -34,27 +34,39 @@
         </tr>
     </thead>
     <tbody>
-        {% for task in tasks %}
-            <tr class="{% if task.is_complete %}text-muted{% endif %} {% if task.category == 'Study' %}bg-study{% elif task.category == 'Exam' %}bg-exam{% elif task.category == 'Sport' %}bg-sport{% elif task.category == 'Social' %}bg-social{% elif task.category == 'Other' %}bg-other{% endif %}">
+        {% for item in tasks %}
+            <tr class="{% if item.task.is_complete %}text-muted{% endif %} {% if item.task.category == 'Study' %}bg-study{% elif item.task.category == 'Exam' %}bg-exam{% elif item.task.category == 'Sport' %}bg-sport{% elif item.task.category == 'Social' %}bg-social{% elif item.task.category == 'Other' %}bg-other{% endif %}">
                 <td>
                     <!-- Make task title clickable and apply black color -->
-                    <a href="{{ url_for('task_detail', task_id=task.id) }}" style="color: black;">{{ task.title }}</a>
+                    <a href="{{ url_for('task_detail', task_id=item.task.id) }}" style="color: black;">{{ item.task.title }}</a>
                 </td>
-                <td>{{ task.category }}</td>
-                <td>{{ task.due_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ item.task.category }}</td>
+                <td>
+                    {% if item.days_until_due is not none %}
+                        {% if item.days_until_due > 0 %}
+                            {{ item.days_until_due }} days
+                        {% elif item.days_until_due == 0 %}
+                            Due today
+                        {% else %}
+                            Overdue by {{ item.days_until_due | abs }} days
+                        {% endif %}
+                    {% else %}
+                        No due date
+                    {% endif %}
+                </td>
                 <td>
                     <!-- Checkbox form for marking tasks as completed -->
-                    <form action="{{ url_for('toggle_task_completion', task_id=task.id) }}" method="POST" style="display:inline;">
+                    <form action="{{ url_for('toggle_task_completion', task_id=item.task.id) }}" method="POST" style="display:inline;">
                         <input type="hidden" name="sort_by" value="{{ sort_by }}">
                         <input type="hidden" name="order" value="{{ order }}">
                         <input type="checkbox" 
-                               {% if task.is_complete %}checked{% endif %}
+                               {% if item.task.is_complete %}checked{% endif %}
                                onchange="this.form.submit()">
                     </form>
                 </td>
                 <td>
-                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-primary btn-sm">Edit</a>
-                    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" style="display: inline;">
+                    <a href="{{ url_for('edit_task', task_id=item.task.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                    <form action="{{ url_for('delete_task', task_id=item.task.id) }}" method="POST" style="display: inline;">
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this task?')">Delete</button>
                     </form>
                 </td>
@@ -64,4 +76,5 @@
 </table>
 
 {% endblock %}
+
 

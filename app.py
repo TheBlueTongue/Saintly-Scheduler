@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from database_setup import SessionLocal, User, Task
 import forms
 from flask import request
+from datetime import datetime
+from flask import request, redirect, url_for, render_template
 
 # Set up Flask app and login manager
 app = Flask(__name__)
@@ -108,13 +110,22 @@ def tasks():
 
     # Query the tasks with sorting applied
     user_tasks = session.query(Task).filter_by(user_id=current_user.id).order_by(order_column).all()
-    
+
+    # Pass the current date to calculate "Days Until Due"
+    current_date = datetime.now().date()
+
     # Close the session
     session.close()
 
-    # Render the template with tasks and current sorting parameters
-    return render_template('tasks.html', form=form, tasks=user_tasks, sort_by=sort_by, order=order)
-
+    # Render the template with tasks, current sorting parameters, and current date
+    return render_template(
+        'tasks.html',
+        form=form,
+        tasks=user_tasks,
+        sort_by=sort_by,
+        order=order,
+        current_date=current_date
+    )
 
 
 # Route for editing an existing task
@@ -123,15 +134,21 @@ def tasks():
 def edit_task(task_id):
     session = SessionLocal()
     task = session.query(Task).get(task_id)
+    
+    # If the task doesn't exist or belongs to another user, redirect
     if not task or task.user_id != current_user.id:
-        
         return redirect(url_for('tasks'))
 
+    # Populate the form with the task data
     form = forms.TaskForm(obj=task)
+    
     if form.validate_on_submit():
+        # Update task fields with the new data from the form
         task.title = form.title.data
         task.category = form.category.data
         task.due_date = form.due_date.data
+        task.description = form.description.data  # Ensure description is updated
+        
         session.commit()
         
         return redirect(url_for('tasks'))
@@ -189,6 +206,20 @@ def toggle_task_completion(task_id):
     
     # Redirect back to tasks with sorting applied
     return redirect(url_for('tasks', sort_by=sort_by, order=order))
+
+@app.route('/task/<int:task_id>')
+@login_required
+def task_detail(task_id):
+    session = SessionLocal()
+    task = session.query(Task).filter_by(id=task_id, user_id=current_user.id).first()
+    session.close()
+    
+    if task is None:
+        flash('Task not found.', 'danger')
+        return redirect(url_for('tasks'))
+    
+    return render_template('task_detail.html', task=task)
+
 
 
 

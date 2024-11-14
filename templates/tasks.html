@@ -11,7 +11,7 @@
 </div>
 
 <!-- Task List Table with sortable headers and Completed column -->
-<table class="table table-striped">
+<table class="table">
     <thead>
         <tr>
             <th>
@@ -37,8 +37,8 @@
         {% for task in tasks %}
             <tr class="{% if task.is_complete %}text-muted{% endif %} {% if task.category == 'Study' %}bg-study{% elif task.category == 'Exam' %}bg-exam{% elif task.category == 'Sport' %}bg-sport{% elif task.category == 'Social' %}bg-social{% elif task.category == 'Other' %}bg-other{% endif %}">
                 <td>
-                    <!-- Make task title clickable -->
-                    <a href="{{ url_for('task_detail', task_id=task.id) }}">{{ task.title }}</a>
+                    <!-- Make task title clickable and apply black color -->
+                    <a href="{{ url_for('task_detail', task_id=task.id) }}" style="color: black;">{{ task.title }}</a>
                 </td>
                 <td>{{ task.category }}</td>
                 <td>{{ task.due_date.strftime('%Y-%m-%d') }}</td>
@@ -64,5 +64,4 @@
 </table>
 
 {% endblock %}
-
 

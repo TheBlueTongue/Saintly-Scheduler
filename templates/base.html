@@ -10,13 +10,28 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <!-- Replace "Home" with your logo image -->
-        <a class="navbar-brand" href="{{ url_for('tasks') }}">
-            <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="Saintly Scheduler Logo" style="height: 40px; border: none;">
-        </a>
-        <div class="collapse navbar-collapse">
+        <div class="container-fluid">
+            <!-- Logo linked to dashboard -->
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="Saintly Scheduler Logo" style="height: 40px; border: none;">
+            </a>
+            
+            <!-- Navigation links -->
+            <div class="navbar-nav">
+                <a class="nav-link {% if request.endpoint == 'tasks' %}active{% endif %}" href="{{ url_for('tasks') }}">All Tasks</a>
+                <a class="nav-link {% if request.endpoint == 'todays_tasks' %}active{% endif %}" href="{{ url_for('todays_tasks') }}">Today's Tasks</a>
+                <a class="nav-link {% if request.endpoint == 'add_task' %}active{% endif %}" href="{{ url_for('add_task') }}">Add Task</a>
+            </div>
+
+            <!-- User authentication links -->
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
+                    <!-- Display username and profile link -->
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'user_profile' %}active{% endif %}" href="{{ url_for('user_profile') }}">
+                            {{ current_user.username }}
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                     </li>

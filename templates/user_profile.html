@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile - Saintly Scheduler{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Your Profile</h2>
+
+    <!-- Profile Update Form -->
+    <div class="card mt-4">
+        <div class="card-header bg-dark text-white">
+            Update Your Information
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('update_profile') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" value="{{ current_user.username }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">New Password</label>
+                    <input type="password" id="password" name="password" class="form-control">
+                    <small class="form-text text-muted">Leave blank if you don't want to change your password.</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Stats -->
+    <div class="card mt-4">
+        <div class="card-header bg-dark text-white">
+            Your Stats
+        </div>
+        <div class="card-body">
+            
+            <p><strong>Tasks Created:</strong> {{ stats.tasks_created }}</p>
+            <p><strong>Tasks Completed:</strong> {{ stats.tasks_completed }}</p>
+            <p><strong>Completion Rate:</strong> {{ stats.completion_rate }}%</p>
+            <p><strong>First Task Created:</strong> {{ stats.first_task_date }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

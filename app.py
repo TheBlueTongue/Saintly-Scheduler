@@ -73,6 +73,56 @@ def logout():
     flash('Logged out successfully!', 'success')
     return redirect(url_for('login'))
 
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/profile', methods=['GET'])
+@login_required
+def user_profile():
+    # Calculate stats for the user
+    user_stats = {
+        "tasks_created": Task.query.filter_by(user_id=current_user.id).count(),
+        "tasks_completed": Task.query.filter_by(user_id=current_user.id, is_complete=True).count(),
+        "completion_rate": round(
+            (Task.query.filter_by(user_id=current_user.id, is_complete=True).count() /
+             max(Task.query.filter_by(user_id=current_user.id).count(), 1)) * 100, 2),
+        
+        "first_task_date": Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.asc()).first().created_at
+    }
+    return render_template('user_profile.html', stats=user_stats)
+
+@app.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    # Update user details
+    current_user.username = username
+    current_user.email = email
+    if password:  # Update password only if provided
+        current_user.set_password(password)
+    
+    db.session.commit()
+    flash('Profile updated successfully!', 'success')
+    return redirect(url_for('user_profile'))
+
+
+
+@app.route('/todays_tasks')
+@login_required
+def todays_tasks():
+    session = SessionLocal()
+    today = datetime.now().date()
+    tasks_due_today = session.query(Task).filter_by(user_id=current_user.id).filter(Task.due_date == today).all()
+    session.close()
+    
+    return render_template('todays_tasks.html', tasks=tasks_due_today)
+
+
 # Route for displaying the list of tasks and adding a new task
 @app.route('/tasks', methods=['GET', 'POST'])
 @login_required

@@ -18,7 +18,6 @@
                 <a href="{{ url_for('todays_tasks', sort_by='title', order='asc' if sort_by != 'title' or order == 'desc' else 'desc') }}">
                     Task {% if sort_by == 'title' %} {% if order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
                 </a>
-                
             </th>
             <th>
                 <a href="{{ url_for('todays_tasks', sort_by='category', order='asc' if sort_by != 'category' or order == 'desc' else 'desc') }}">
@@ -39,7 +38,12 @@
                         elif task.category == 'Other' %}bg-other{% endif %}">
                 <td>
                     <!-- Make task title clickable and apply black color -->
-                    <a href="{{ url_for('task_detail', task_id=task.id) }}" style="color: black;">{{ task.title }}</a>
+                    <a href="{{ url_for('task_detail', task_id=task.id) }}" style="color: black;">
+                        {{ task.title }}
+                        {% if task.important %}
+                            <span style="color: red; font-size: 1.2em;">●</span>
+                        {% endif %}
+                    </a>
                 </td>
                 <td>{{ task.category }}</td>
                 <td>

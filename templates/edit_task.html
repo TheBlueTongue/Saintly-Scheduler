@@ -11,6 +11,11 @@
         <label for="title">Task Title</label>
         {{ form.title(class="form-control") }}
     </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="important" name="important" {% if task and task.important %}checked{% endif %}>
+        <label class="form-check-label" for="important">Mark as Important</label>
+    </div>
+    
     <div class="form-group">
         <label for="description">Task Description</label>
         {{ form.description(class="form-control") }}

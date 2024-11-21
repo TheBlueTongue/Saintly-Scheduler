@@ -212,6 +212,7 @@ def edit_task(task_id):
         task.category = form.category.data
         task.due_date = form.due_date.data
         task.description = form.description.data  # Ensure description is updated
+        task.important = form.important.data  # Update important field
         
         session.commit()
         
@@ -219,6 +220,7 @@ def edit_task(task_id):
     
     session.close()
     return render_template('edit_task.html', form=form, task=task)
+
 
 # Route for deleting a task
 @app.route('/tasks/delete/<int:task_id>', methods=['POST'])
@@ -244,6 +246,7 @@ def add_task():
             category=form.category.data,
             description=form.description.data,
             due_date=form.due_date.data,
+            important=form.important.data,  # Include the important field
             user_id=current_user.id
         )
         session.add(new_task)
@@ -252,6 +255,7 @@ def add_task():
         
         return redirect(url_for('tasks'))
     return render_template('add_task.html', form=form)
+
 
 @app.route('/toggle_task_completion/<int:task_id>', methods=['POST'])
 @login_required

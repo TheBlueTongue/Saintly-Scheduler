@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
-from wtforms import SelectField
+from wtforms import SelectField, BooleanField
 
 # Form for user login
 class LoginForm(FlaskForm):
@@ -29,3 +29,5 @@ class TaskForm(FlaskForm):
         validators=[DataRequired()])
     due_date = DateField('Due Date', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Add Task')
+    important = BooleanField('Important')  # Add this line
+    

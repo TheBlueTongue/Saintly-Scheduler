@@ -81,17 +81,22 @@ def dashboard():
 @app.route('/profile', methods=['GET'])
 @login_required
 def user_profile():
+    session = SessionLocal()
+    
     # Calculate stats for the user
     user_stats = {
-        "tasks_created": Task.query.filter_by(user_id=current_user.id).count(),
-        "tasks_completed": Task.query.filter_by(user_id=current_user.id, is_complete=True).count(),
+        "tasks_created": session.query(Task).filter_by(user_id=current_user.id).count(),
+        "tasks_completed": session.query(Task).filter_by(user_id=current_user.id, is_complete=True).count(),
         "completion_rate": round(
-            (Task.query.filter_by(user_id=current_user.id, is_complete=True).count() /
-             max(Task.query.filter_by(user_id=current_user.id).count(), 1)) * 100, 2),
+            (session.query(Task).filter_by(user_id=current_user.id, is_complete=True).count() /
+             max(session.query(Task).filter_by(user_id=current_user.id).count(), 1)) * 100, 2),
         
-        "first_task_date": Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.asc()).first().created_at
+        "first_task_date": session.query(Task).filter_by(user_id=current_user.id).order_by(Task.created_at.asc()).first().created_at
     }
+    
+    session.close()  # Close the session
     return render_template('user_profile.html', stats=user_stats)
+
 
 @app.route('/update_profile', methods=['POST'])
 @login_required
@@ -106,9 +111,12 @@ def update_profile():
     if password:  # Update password only if provided
         current_user.set_password(password)
     
-    db.session.commit()
+    session = SessionLocal()  # Ensure session is created here
+    session.commit()
     flash('Profile updated successfully!', 'success')
+    session.close()  # Make sure to close the session after commit
     return redirect(url_for('user_profile'))
+
 
 
 

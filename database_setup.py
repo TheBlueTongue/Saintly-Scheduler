@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Date, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Date, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from flask_login import UserMixin
 from datetime import datetime
@@ -30,6 +30,10 @@ class Task(Base):
     is_complete = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     owner = relationship('User', back_populates='tasks')
+    
+    # Add created_at column to track task creation time
+    created_at = Column(DateTime, default=datetime.utcnow)  # Automatically set the current timestamp on task creation
 
 # Create tables if they don't already exist
 Base.metadata.create_all(bind=engine)
+

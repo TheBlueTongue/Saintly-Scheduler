@@ -61,7 +61,7 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             
-            return redirect(url_for('tasks'))
+            return redirect(url_for('dashboard'))
         flash('Invalid username or password', 'danger')
     return render_template('login.html', form=form)
 

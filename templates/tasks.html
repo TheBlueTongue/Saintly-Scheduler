@@ -35,10 +35,15 @@
     </thead>
     <tbody>
         {% for item in tasks %}
-            <tr class="{% if item.task.is_complete %}text-muted{% endif %} {% if item.task.category == 'Study' %}bg-study{% elif item.task.category == 'Exam' %}bg-exam{% elif item.task.category == 'Sport' %}bg-sport{% elif item.task.category == 'Social' %}bg-social{% elif item.task.category == 'Other' %}bg-other{% endif %}">
+            <tr class="{% if item.task.is_complete %}text-muted{% else %}text-white{% endif %} 
+            {% if item.task.category == 'Study' %}bg-study{% 
+            elif item.task.category == 'Exam' %}bg-exam{% 
+            elif item.task.category == 'Sport' %}bg-sport{% 
+            elif item.task.category == 'Social' %}bg-social{% 
+            elif item.task.category == 'Other' %}bg-other{% endif %}">
                 <td>
                     <!-- Make task title clickable and apply black color -->
-                    <a href="{{ url_for('task_detail', task_id=item.task.id) }}" style="color: black;">{{ item.task.title }}
+                    <a href="{{ url_for('task_detail', task_id=item.task.id) }}" style = "color:white">{{ item.task.title }}
                         {% if item.task.important %}
                             <span style="color: red; font-size: 1.2em;">●</span>
                         {% endif %}

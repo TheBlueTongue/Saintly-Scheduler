@@ -76,49 +76,69 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    session = SessionLocal()
+    try:
+        # Get all tasks for the current user
+        tasks = session.query(Task).filter_by(user_id=current_user.id).all()
 
-@app.route('/profile', methods=['GET'])
+        # Filter tasks into categories
+        important_tasks = [task for task in tasks if task.important and not task.is_complete]
+        tasks_due_today = [
+            task for task in tasks
+            if task.due_date and task.due_date == datetime.utcnow().date()
+        ]
+        upcoming_tasks = [
+            task for task in tasks
+            if task.due_date and task.due_date > datetime.utcnow().date() and not task.is_complete
+        ]
+        completed_tasks = [task for task in tasks if task.is_complete]
+
+        # Calculate days_until_due for upcoming tasks
+        today = datetime.utcnow().date()
+        for task in upcoming_tasks:
+            task.days_until_due = (task.due_date - today).days
+
+    finally:
+        session.close()  # Ensure session is closed even if an error occurs
+
+    # Pass the filtered tasks to the template
+    return render_template(
+        'dashboard.html',
+        important_tasks=important_tasks,
+        tasks_due_today=tasks_due_today,
+        upcoming_tasks=upcoming_tasks,
+        completed_tasks=completed_tasks
+    )
+
+@app.route('/user_profile')
 @login_required
 def user_profile():
     session = SessionLocal()
-    
-    # Calculate stats for the user
-    user_stats = {
-        "tasks_created": session.query(Task).filter_by(user_id=current_user.id).count(),
-        "tasks_completed": session.query(Task).filter_by(user_id=current_user.id, is_complete=True).count(),
-        "completion_rate": round(
-            (session.query(Task).filter_by(user_id=current_user.id, is_complete=True).count() /
-             max(session.query(Task).filter_by(user_id=current_user.id).count(), 1)) * 100, 2),
+    try:
+        # Fetch all tasks for the current user
+        tasks = session.query(Task).filter_by(user_id=current_user.id).all()
         
-        "first_task_date": session.query(Task).filter_by(user_id=current_user.id).order_by(Task.created_at.asc()).first().created_at
-    }
-    
-    session.close()  # Close the session
-    return render_template('user_profile.html', stats=user_stats)
+        # Get the first task's creation date if tasks exist
+        first_task = (
+            session.query(Task)
+            .filter_by(user_id=current_user.id)
+            .order_by(Task.created_at.asc())
+            .first()
+        )
+        first_task_date = first_task.created_at if first_task else None
 
+        # Prepare statistics
+        total_tasks = len(tasks)
+        completed_tasks = len([task for task in tasks if task.is_complete])
+        stats = {
+            "total_tasks": total_tasks,
+            "completed_tasks": completed_tasks,
+            "first_task_date": first_task_date,
+        }
+    finally:
+        session.close()
 
-@app.route('/update_profile', methods=['POST'])
-@login_required
-def update_profile():
-    username = request.form.get('username')
-    email = request.form.get('email')
-    password = request.form.get('password')
-
-    # Update user details
-    current_user.username = username
-    current_user.email = email
-    if password:  # Update password only if provided
-        current_user.set_password(password)
-    
-    session = SessionLocal()  # Ensure session is created here
-    session.commit()
-    flash('Profile updated successfully!', 'success')
-    session.close()  # Make sure to close the session after commit
-    return redirect(url_for('user_profile'))
-
-
-
+    return render_template('user_profile.html', user=current_user, stats=stats)
 
 @app.route('/todays_tasks')
 @login_required

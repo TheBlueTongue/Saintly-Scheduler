@@ -12,7 +12,7 @@
             Update Your Information
         </div>
         <div class="card-body">
-            <form action="{{ url_for('update_profile') }}" method="POST">
+            <form action="{{ url_for('user_profile') }}" method="POST">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" class="form-control" value="{{ current_user.username }}" required>
@@ -37,12 +37,16 @@
             Your Stats
         </div>
         <div class="card-body">
-            
-            <p><strong>Tasks Created:</strong> {{ stats.tasks_created }}</p>
-            <p><strong>Tasks Completed:</strong> {{ stats.tasks_completed }}</p>
-            <p><strong>Completion Rate:</strong> {{ stats.completion_rate }}%</p>
-            <p><strong>First Task Created:</strong> {{ stats.first_task_date }}</p>
+            <p><strong>Tasks Created:</strong> {{ stats.total_tasks }}</p>
+            <p><strong>Tasks Completed:</strong> {{ stats.completed_tasks }}</p>
+            <p><strong>Completion Rate:</strong> 
+                {{ "%.2f"|format(stats.completed_tasks / stats.total_tasks * 100) if stats.total_tasks > 0 else "0.00" }}%
+            </p>
+            <p><strong>First Task Created:</strong> 
+                {{ stats.first_task_date.strftime('%Y-%m-%d') if stats.first_task_date else "No tasks created yet" }}
+            </p>
         </div>
     </div>
 </div>
 {% endblock %}
+

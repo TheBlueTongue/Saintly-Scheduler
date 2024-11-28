@@ -1,79 +1,232 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Welcome - Saintly Scheduler{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <!-- Welcome Section -->
-        <div class="jumbotron text-center" style="background-color: #f5f5dc; color: #333;">
-            <h1 class="display-4">Welcome to Saintly Scheduler!</h1>
-            <p class="lead">Your ultimate tool for organized and stress-free planning.</p>
-            <hr class="my-4" style="border-color: #e0e0e0;">
-            <p>Join us on a journey to streamline your tasks and achieve academic excellence with ease.</p>
-            <a class="btn btn-primary btn-lg mt-3" href="{{ url_for('register') }}" role="button">Get Started</a>
+<div class="welcome-container">
+    <div class="hero-section">
+        <h1 class="fade-in">Welcome to Saintly Scheduler</h1>
+        <p class="slide-up">Your personal task management companion</p>
+        
+        <div class="cta-buttons slide-up">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg pulse">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">Get Started</a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg pulse">Go to Dashboard</a>
+            {% endif %}
         </div>
-
-        <!-- About Section -->
-        <section class="about-section my-5">
-            <h2 class="text-center text-secondary">About Saintly Scheduler</h2>
-            <p class="text-center mt-3 mb-5">Saintly Scheduler is a dedicated platform designed to help students at Saint Augustine's manage their tasks, assignments, and schedules efficiently. With intuitive features and a clean interface, Saintly Scheduler makes task management seamless and enjoyable.</p>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <img src="{{ url_for('static', filename='images/about1.webp') }}" alt="Student Studying" class="img-fluid rounded shadow-sm">
-                </div>
-                <div class="col-md-6">
-                    <img src="{{ url_for('static', filename='images/about2.webp') }}" alt="Organized Desk" class="img-fluid rounded shadow-sm">
-                </div>
-            </div>
-        </section>
-
-        <!-- Reviews Section -->
-        <section class="reviews-section my-5">
-            <h2 class="text-center text-secondary">What Our Users Say</h2>
-            <div class="row my-4">
-                <div class="col-md-4 text-center">
-                    <div class="card bg-light shadow-sm p-4">
-                        <blockquote class="blockquote">
-                            <p class="mb-0">"Saintly Scheduler has changed the way I manage my assignments. Now I'm never late!"</p>
-                            <footer class="blockquote-footer">John D., Senior Student</footer>
-                        </blockquote>
-                    </div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <div class="card bg-light shadow-sm p-4">
-                        <blockquote class="blockquote">
-                            <p class="mb-0">"A must-have app for anyone looking to stay organized and on top of tasks."</p>
-                            <footer class="blockquote-footer">Sarah L., Junior Student</footer>
-                        </blockquote>
-                    </div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <div class="card bg-light shadow-sm p-4">
-                        <blockquote class="blockquote">
-                            <p class="mb-0">"Finally, an app that understands student life! It’s perfect."</p>
-                            <footer class="blockquote-footer">Mark T., Freshman</footer>
-                        </blockquote>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Image Gallery -->
-        <section class="gallery-section my-5">
-            <h2 class="text-center text-secondary">Explore Our Features</h2>
-            <div class="row mt-4">
-                <div class="col-md-3">
-                    <img src="{{ url_for('static', filename='images/feature1.jpg') }}" alt="Feature 1" class="img-fluid rounded shadow-sm mb-4">
-                </div>
-                <div class="col-md-3">
-                    <img src="{{ url_for('static', filename='images/feature2.jpg') }}" alt="Feature 2" class="img-fluid rounded shadow-sm mb-4">
-                </div>
-                <div class="col-md-3">
-                    <img src="{{ url_for('static', filename='images/feature3.jpg') }}" alt="Feature 3" class="img-fluid rounded shadow-sm mb-4">
-                </div>
-                <div class="col-md-3">
-                    <img src="{{ url_for('static', filename='images/feature4.jpg') }}" alt="Feature 4" class="img-fluid rounded shadow-sm mb-4">
-                </div>
-            </div>
-        </section>
     </div>
+
+    <div class="features-grid slide-up-delay">
+        <div class="feature-card">
+            <i class="fas fa-tasks feature-icon"></i>
+            <h3>Task Management</h3>
+            <p>Organize your tasks with ease</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-calendar-check feature-icon"></i>
+            <h3>Due Dates</h3>
+            <p>Never miss a deadline</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-chart-line feature-icon"></i>
+            <h3>Progress Tracking</h3>
+            <p>Monitor your productivity</p>
+        </div>
+    </div>
+
+    <!-- New Reviews Section -->
+    <div class="reviews-section slide-up-delay">
+        <h2 class="text-white mb-4">What Our Users Say</h2>
+        <div clasrgb(99, 58, 58)views-grid">
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="review-text">"This scheduler has completely transformed how I manage my school work. Love the intuitive interface!"</p>
+                <div class="reviewer">- James S., Year 12</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="review-text">"The best task management app I've used. Perfect for keeping track of assignments and due dates."</p>
+                <div class="reviewer">- Sarah M., Year 11</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★★½</div>
+                <p class="review-text">"Great for organizing both academic and extracurricular activities. Highly recommend!"</p>
+                <div class="reviewer">- Michael T., Year 10</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.welcome-container {
+    
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    text-align: center;
+}
+
+.hero-section {
+    padding: 4rem 1rem;
+    background: rgba(0, 0, 0, 0.2); /* Add semi-transparent background */
+    border-radius: 15px; /* Match other sections' style */
+    margin-bottom: 2rem; /* Add some spacing */
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Increased shadow for better contrast */
+}
+
+.hero-section p {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    opacity: 1; /* Changed from 0.9 for better visibility */
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Increased shadow for better contrast */
+}
+
+.cta-buttons {
+    gap: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.cta-buttons .btn {
+    margin: 0 0.5rem;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    transition: transform 0.3s ease;
+}
+
+.cta-buttons .btn:hover {
+    transform: translateY(-3px);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+    padding: 2rem;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+    color: #ffffff;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+
+.slide-up {
+    animation: slideUp 0.8s ease-out;
+}
+
+.slide-up-delay {
+    animation: slideUp 0.8s ease-out 0.3s backwards;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* New Reviews Section Styles */
+.reviews-section {
+    padding: 4rem 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    margin-top: 4rem;
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.review-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+    color: #ffffff;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+.stars {
+    color: #ffd700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.review-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.reviewer {
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+/* Additional animation for reviews */
+.reviews-section {
+    animation: fadeIn 1s ease-in 0.6s backwards;
+}
+
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
+

@@ -4,8 +4,23 @@
 
 {% block content %}
 <div class="container my-4">
+
+
+    <!-- Set category class based on task's category -->
+    {% if task.category == 'Study' %}
+        {% set category_class = 'bg-study' %}
+    {% elif task.category == 'Exam' %}
+        {% set category_class = 'bg-exam' %}
+    {% elif task.category == 'Sport' %}
+        {% set category_class = 'bg-sport' %}
+    {% elif task.category == 'Social' %}
+        {% set category_class = 'bg-social' %}
+    {% else %}
+        {% set category_class = 'bg-other' %}
+    {% endif %}
+
     <div class="card border-info" style="width: 45%; min-width: 300px; margin: auto;">
-        <div class="card-header bg-info text-white">
+        <div class="card-header {{ category_class }} text-white">
             <h4>Task Details</h4>
         </div>
         <div class="card-body">
@@ -30,7 +45,6 @@
                 {% endif %}
             </p>
             <p class="card-text"><strong>Created On:</strong> {{ task.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-           
 
             <!-- Edit and Delete Actions -->
             <div class="d-flex justify-content-between mt-4">

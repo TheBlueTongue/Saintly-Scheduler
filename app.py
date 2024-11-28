@@ -217,29 +217,38 @@ def tasks():
 @login_required
 def edit_task(task_id):
     session = SessionLocal()
-    task = session.query(Task).get(task_id)
-    
-    # If the task doesn't exist or belongs to another user, redirect
-    if not task or task.user_id != current_user.id:
-        return redirect(url_for('tasks'))
+    try:
+        task = session.query(Task).get(task_id)
+        
+        # If the task doesn't exist or belongs to another user, redirect
+        if not task or task.user_id != current_user.id:
+            flash("Task not found or access denied!", "danger")
+            return redirect(url_for('dashboard'))
 
-    # Populate the form with the task data
-    form = forms.TaskForm(obj=task)
-    
-    if form.validate_on_submit():
-        # Update task fields with the new data from the form
-        task.title = form.title.data
-        task.category = form.category.data
-        task.due_date = form.due_date.data
-        task.description = form.description.data  # Ensure description is updated
-        task.important = form.important.data  # Update important field
+        # Populate the form with the task data
+        form = forms.TaskForm(obj=task)
         
-        session.commit()
+        if form.validate_on_submit():
+            # Update task fields with the new data from the form
+            task.title = form.title.data
+            task.category = form.category.data
+            task.due_date = form.due_date.data
+            task.description = form.description.data  # Ensure description is updated
+            task.important = form.important.data  # Update important field
+   
+            
+            session.commit()
+            
+            # Redirect to the task detail page with a success message
+            flash("Task successfully updated!", "success")
+            return redirect(url_for('task_detail', task_id=task.id))
         
-        return redirect(url_for('tasks'))
+    finally:
+        session.close()
     
-    session.close()
+    # Render the edit task page with the form
     return render_template('edit_task.html', form=form, task=task)
+
 
 
 # Route for deleting a task
@@ -261,20 +270,29 @@ def add_task():
     form = forms.TaskForm()
     if form.validate_on_submit():
         session = SessionLocal()
-        new_task = Task(
-            title=form.title.data,
-            category=form.category.data,
-            description=form.description.data,
-            due_date=form.due_date.data,
-            important=form.important.data,  # Include the important field
-            user_id=current_user.id
-        )
-        session.add(new_task)
-        session.commit()
-        session.close()
+        try:
+            # Create a new task using the form data
+            new_task = Task(
+                title=form.title.data,
+                category=form.category.data,
+                description=form.description.data,
+                due_date=form.due_date.data,
+                important=form.important.data,  # Include the important field
+                user_id=current_user.id
+            )
+            session.add(new_task)
+            session.commit()
+
+            # Redirect to the newly created task's detail page
+            flash("Task successfully created!", "success")
+            return redirect(url_for('task_detail', task_id=new_task.id))
         
-        return redirect(url_for('tasks'))
+        finally:
+            session.close()
+    
+    # Render the add task page with the form
     return render_template('add_task.html', form=form)
+
 
 
 @app.route('/toggle_task_completion/<int:task_id>', methods=['POST'])

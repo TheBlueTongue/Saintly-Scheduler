@@ -8,6 +8,7 @@
             <p class="lead">Your ultimate tool for organized and stress-free planning.</p>
             <hr class="my-4" style="border-color: #e0e0e0;">
             <p>Join us on a journey to streamline your tasks and achieve academic excellence with ease.</p>
+            <a class="btn btn-primary btn-lg mt-3" href="{{ url_for('register') }}" role="button">Get Started</a>
         </div>
 
         <!-- About Section -->
@@ -17,10 +18,10 @@
             
             <div class="row">
                 <div class="col-md-6">
-                    <img src="{{ url_for('static', filename='images/about1.webp') }}" alt="Student Studying" class="img-fluid rounded">
+                    <img src="{{ url_for('static', filename='images/about1.webp') }}" alt="Student Studying" class="img-fluid rounded shadow-sm">
                 </div>
                 <div class="col-md-6">
-                    <img src="{{ url_for('static', filename='images/about2.webp') }}" alt="Organized Desk" class="img-fluid rounded">
+                    <img src="{{ url_for('static', filename='images/about2.webp') }}" alt="Organized Desk" class="img-fluid rounded shadow-sm">
                 </div>
             </div>
         </section>

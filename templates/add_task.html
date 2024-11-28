@@ -1,30 +1,54 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Task - Student To-Do App{% endblock %}
+{% block title %}Add Task - Saintly Scheduler{% endblock %}
 
 {% block content %}
-<h2>Add a New Task</h2>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-        {{ form.title.label }} {{ form.title(class="form-control") }}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Add a New Task</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <!-- Title -->
+                <div class="form-group">
+                    {{ form.title.label(class="form-label font-weight-bold") }}
+                    {{ form.title(class="form-control") }}
+                </div>
+                
+                <!-- Important Checkbox -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="important" name="important" 
+                           {% if task and task.important %}checked{% endif %}>
+                    <label class="form-check-label font-weight-bold" for="important">Mark as Important</label>
+                </div>
+                
+                <!-- Description -->
+                <div class="form-group">
+                    {{ form.description.label(class="form-label font-weight-bold") }}
+                    {{ form.description(class="form-control", rows="3") }}
+                </div>
+                
+                <!-- Category -->
+                <div class="form-group">
+                    {{ form.category.label(class="form-label font-weight-bold") }}
+                    {{ form.category(class="form-control") }}
+                </div>
+                
+                <!-- Due Date -->
+                <div class="form-group">
+                    {{ form.due_date.label(class="form-label font-weight-bold") }}
+                    {{ form.due_date(class="form-control") }}
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="text-right">
+                    {{ form.submit(class="btn btn-success btn-lg") }}
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="important" name="important" {% if task and task.important %}checked{% endif %}>
-        <label class="form-check-label" for="important">Mark as Important</label>
-    </div>
-    
-    <div class="form-group">
-        {{ form.description.label }} {{ form.description(class="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ form.category.label }} {{ form.category(class="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ form.due_date.label }} {{ form.due_date(class="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ form.submit(class="btn btn-primary") }}
-    </div>
-</form>
+</div>
 {% endblock %}

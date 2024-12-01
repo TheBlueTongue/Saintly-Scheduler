@@ -11,8 +11,7 @@ from flask import request, redirect, url_for, render_template
 
 # Set up Flask app and login manager
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with a real secret key
-
+app.config['SECRET_KEY'] = 'your_secret_key' 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'  # Redirect to login page if user is not authenticated

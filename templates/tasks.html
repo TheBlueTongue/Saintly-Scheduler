@@ -85,11 +85,13 @@
                             </td>
                             <td class="text-center">
                                 <form action="{{ url_for('toggle_task_completion', task_id=item.task.id) }}" method="POST" class="completion-form">
+                                    <input type="hidden" name="return_to" value="tasks">
                                     <input type="hidden" name="sort_by" value="{{ sort_by }}">
                                     <input type="hidden" name="order" value="{{ order }}">
+                                    <input type="hidden" name="scroll_position" class="scroll-position-input">
                                     <input type="checkbox" class="task-checkbox" 
                                            {% if item.task.is_complete %}checked{% endif %}
-                                           onchange="this.form.submit()">
+                                           onchange="saveScrollPosition(this.form)">
                                 </form>
                             </td>
                             <td class="text-center">
@@ -274,5 +276,19 @@ document.getElementById('toggleCompletedTasks').addEventListener('click', functi
         '<i class="fas fa-eye-slash"></i> Hide Completed' : 
         '<i class="fas fa-eye"></i> Show Completed';
 });
+
+// Add this at the bottom of your existing script section
+function saveScrollPosition(form) {
+    form.querySelector('.scroll-position-input').value = window.pageYOffset;
+    form.submit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scrollPosition = urlParams.get('scroll');
+    if (scrollPosition) {
+        window.scrollTo(0, parseInt(scrollPosition));
+    }
+});
 </script>
-{% endblock %}
+{% endblock %} 

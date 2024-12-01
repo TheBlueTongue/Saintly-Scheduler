@@ -37,7 +37,11 @@ def register():
     if form.validate_on_submit():
         session = SessionLocal()
         hashed_password = generate_password_hash(form.password.data, method='pbkdf2:sha256')
-        new_user = User(username=form.username.data, password=hashed_password)
+        new_user = User(
+            username=form.username.data,
+            email=form.email.data,  # Add email
+            password=hashed_password
+        )
         session.add(new_user)
         try:
             session.commit()
@@ -110,35 +114,68 @@ def dashboard():
         completed_tasks=completed_tasks
     )
 
-@app.route('/user_profile')
+@app.route('/user_profile', methods=['GET', 'POST'])
 @login_required
 def user_profile():
+    profile_form = forms.ProfileUpdateForm()
+    password_form = forms.PasswordUpdateForm()
     session = SessionLocal()
+    
     try:
-        # Fetch all tasks for the current user
-        tasks = session.query(Task).filter_by(user_id=current_user.id).all()
+        # Get the current user from the database session
+        user = session.query(User).get(current_user.id)
         
-        # Get the first task's creation date if tasks exist
-        first_task = (
-            session.query(Task)
-            .filter_by(user_id=current_user.id)
-            .order_by(Task.created_at.asc())
-            .first()
-        )
-        first_task_date = first_task.created_at if first_task else None
+        if request.method == 'POST':
+            if 'submit_profile' in request.form and profile_form.validate():
+                # Check if username is already taken
+                existing_user = session.query(User).filter(
+                    User.username == profile_form.username.data,
+                    User.id != current_user.id
+                ).first()
+                
+                if existing_user:
+                    flash('Username already taken.', 'danger')
+                else:
+                    # Update the user object in the session
+                    user.username = profile_form.username.data
+                    user.email = profile_form.email.data
+                    session.commit()
+                    flash('Profile updated successfully!', 'success')
+                    
+            elif 'submit_password' in request.form and password_form.validate():
+                if check_password_hash(user.password, password_form.current_password.data):
+                    # Update the password in the session
+                    user.password = generate_password_hash(
+                        password_form.new_password.data,
+                        method='pbkdf2:sha256'
+                    )
+                    session.commit()
+                    flash('Password updated successfully!', 'success')
+                else:
+                    flash('Current password is incorrect.', 'danger')
 
-        # Prepare statistics
-        total_tasks = len(tasks)
-        completed_tasks = len([task for task in tasks if task.is_complete])
+        # Get user statistics
+        tasks = session.query(Task).filter_by(user_id=user.id).all()
+        first_task = session.query(Task).filter_by(user_id=user.id).order_by(Task.created_at.asc()).first()
+        
         stats = {
-            "total_tasks": total_tasks,
-            "completed_tasks": completed_tasks,
-            "first_task_date": first_task_date,
+            "total_tasks": len(tasks),
+            "completed_tasks": len([task for task in tasks if task.is_complete]),
+            "first_task_date": first_task.created_at if first_task else None,
         }
+
+        # Pre-populate the profile form with current user data
+        if not profile_form.username.data:
+            profile_form.username.data = user.username
+            profile_form.email.data = user.email
+
     finally:
         session.close()
 
-    return render_template('user_profile.html', user=current_user, stats=stats)
+    return render_template('user_profile.html', 
+                         profile_form=profile_form,
+                         password_form=password_form,
+                         stats=stats)
 
 @app.route('/todays_tasks')
 @login_required
@@ -306,12 +343,17 @@ def toggle_task_completion(task_id):
     
     session.close()
     
-    # Get the sorting parameters from the form
-    sort_by = request.form.get('sort_by', 'title')
-    order = request.form.get('order', 'asc')
+    # Get the return page and scroll position
+    return_to = request.form.get('return_to', 'tasks')
+    scroll_position = request.form.get('scroll_position', '0')
     
-    # Redirect back to tasks with sorting applied
-    return redirect(url_for('tasks', sort_by=sort_by, order=order))
+    # Return to the appropriate page with scroll position
+    if return_to == 'todays_tasks':
+        return redirect(url_for('todays_tasks', scroll=scroll_position))
+    else:
+        sort_by = request.form.get('sort_by', 'title')
+        order = request.form.get('order', 'asc')
+        return redirect(url_for('tasks', sort_by=sort_by, order=order, scroll=scroll_position))
 
 @app.route('/task/<int:task_id>')
 @login_required

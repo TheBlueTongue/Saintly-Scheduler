@@ -16,6 +16,7 @@ class User(Base, UserMixin):
 
     id = Column(Integer, primary_key=True)
     username = Column(String(150), unique=True, nullable=False)
+    email = Column(String(150), nullable=True)  # Add email field
     password = Column(String(150), nullable=False)
     tasks = relationship('Task', back_populates='owner')
 

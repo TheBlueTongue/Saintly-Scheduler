@@ -18,26 +18,48 @@
             </div>
             <div class="card-body">
                 <form action="{{ url_for('user_profile') }}" method="POST">
+                    {{ profile_form.hidden_tag() }}
                     <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" class="form-control" value="{{ current_user.username }}" required>
+                        <label>Username</label>
+                        {{ profile_form.username(class="form-control") }}
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+                        <label>Email</label>
+                        {{ profile_form.email(class="form-control") }}
+                    </div>
+                    {{ profile_form.submit_profile(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+
+        <!-- Password Update Section -->
+        <div class="profile-card slide-up" style="--delay: 0.2s">
+            <div class="card-header gradient-purple">
+                <i class="fas fa-lock"></i>
+                <h2>Change Password</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('user_profile') }}" method="POST">
+                    {{ password_form.hidden_tag() }}
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        {{ password_form.current_password(class="form-control") }}
                     </div>
                     <div class="form-group">
-                        <label for="password">New Password</label>
-                        <input type="password" id="password" name="password" class="form-control">
-                        <small class="form-text text-white opacity-75">Leave blank if you don't want to change your password.</small>
+                        <label>New Password</label>
+                        {{ password_form.new_password(class="form-control") }}
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        {{ password_form.confirm_password(class="form-control") }}
+                    </div>
+                    {{ password_form.submit_password(class="btn btn-primary w-100") }}
                 </form>
             </div>
         </div>
 
         <!-- User Stats Section -->
-        <div class="profile-card slide-up" style="--delay: 0.2s">
+        <div class="profile-card slide-up" style="--delay: 0.3s">
             <div class="card-header gradient-green">
                 <i class="fas fa-chart-bar"></i>
                 <h2>Your Statistics</h2>
@@ -152,6 +174,10 @@
 
 .gradient-green {
     background: linear-gradient(135deg, rgba(0, 184, 148, 0.8) 0%, rgba(0, 206, 201, 0.8) 100%);
+}
+
+.gradient-purple {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.8) 0%, rgba(142, 68, 173, 0.8) 100%);
 }
 
 .stat-item {

@@ -11,17 +11,17 @@ from flask import request, redirect, url_for, render_template
 
 # Set up Flask app and login manager
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key' 
+app.config['SECRET_KEY'] = 'your_secret_key12345asdfg' 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'  # Redirect to login page if user is not authenticated
 
-# Route for the welcome page
+# Route for the welcome page, sends you to that when you load the app
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
 
-# Session management function
+# Session management function which retrieves the user from the database
 @login_manager.user_loader
 def load_user(user_id):
     session = SessionLocal()
@@ -29,16 +29,16 @@ def load_user(user_id):
     session.close()
     return user
 
-# Route for registering a new user
+# Route for registering a new user, sending you to the register page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = forms.RegisterForm()
-    if form.validate_on_submit():
-        session = SessionLocal()
+    if form.validate_on_submit(): # Handles the process of registering a new user 
+        session = SessionLocal()  # including form validation, password hashing, database interaction, and error handling
         hashed_password = generate_password_hash(form.password.data, method='pbkdf2:sha256')
         new_user = User(
             username=form.username.data,
-            email=form.email.data,  # Add email
+            email=form.email.data, 
             password=hashed_password
         )
         session.add(new_user)
@@ -53,7 +53,8 @@ def register():
             session.close()
     return render_template('register.html', form=form)
 
-# Route for logging in an existing user
+# Route for logging in an existing user, handling the login process
+# including form validation, password checking, and session management
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = forms.LoginForm()
@@ -63,7 +64,6 @@ def login():
         session.close()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            
             return redirect(url_for('dashboard'))
         flash('Invalid username or password', 'danger')
     return render_template('login.html', form=form)
@@ -76,6 +76,7 @@ def logout():
     flash('Logged out successfully!', 'success')
     return redirect(url_for('login'))
 
+# Route for the user dashboard, displaying tasks categorized by their status
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -113,6 +114,7 @@ def dashboard():
         completed_tasks=completed_tasks
     )
 
+# Route for the user profile page, allowing profile and password updates
 @app.route('/user_profile', methods=['GET', 'POST'])
 @login_required
 def user_profile():
@@ -176,6 +178,7 @@ def user_profile():
                          password_form=password_form,
                          stats=stats)
 
+# Route for displaying tasks due today
 @app.route('/todays_tasks')
 @login_required
 def todays_tasks():
@@ -185,7 +188,6 @@ def todays_tasks():
     session.close()
     
     return render_template('todays_tasks.html', tasks=tasks_due_today)
-
 
 # Route for displaying the list of tasks and adding a new task
 @app.route('/tasks', methods=['GET', 'POST'])
@@ -247,7 +249,6 @@ def tasks():
         sort_by=sort_by,
         order=order)
 
-
 # Route for editing an existing task
 @app.route('/tasks/edit/<int:task_id>', methods=['GET', 'POST'])
 @login_required
@@ -271,7 +272,6 @@ def edit_task(task_id):
             task.due_date = form.due_date.data
             task.description = form.description.data  # Ensure description is updated
             task.important = form.important.data  # Update important field
-   
             
             session.commit()
             
@@ -284,8 +284,6 @@ def edit_task(task_id):
     
     # Render the edit task page with the form
     return render_template('edit_task.html', form=form, task=task)
-
-
 
 # Route for deleting a task
 @app.route('/tasks/delete/<int:task_id>', methods=['POST'])
@@ -300,6 +298,7 @@ def delete_task(task_id):
     session.close()
     return redirect(url_for('tasks'))
 
+# Route for adding a new task
 @app.route('/tasks/add', methods=['GET', 'POST'])
 @login_required
 def add_task():
@@ -329,8 +328,7 @@ def add_task():
     # Render the add task page with the form
     return render_template('add_task.html', form=form)
 
-
-
+# Route for toggling task completion status
 @app.route('/toggle_task_completion/<int:task_id>', methods=['POST'])
 @login_required
 def toggle_task_completion(task_id):
@@ -354,6 +352,7 @@ def toggle_task_completion(task_id):
         order = request.form.get('order', 'asc')
         return redirect(url_for('tasks', sort_by=sort_by, order=order, scroll=scroll_position))
 
+# Route for displaying task details
 @app.route('/task/<int:task_id>')
 @login_required
 def task_detail(task_id):
@@ -366,10 +365,6 @@ def task_detail(task_id):
         return redirect(url_for('tasks'))
     
     return render_template('task_detail.html', task=task)
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

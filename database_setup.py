@@ -16,7 +16,7 @@ class User(Base, UserMixin):
 
     id = Column(Integer, primary_key=True)
     username = Column(String(150), unique=True, nullable=False)
-    email = Column(String(150), nullable=True)  # Add email field
+    email = Column(String(150), nullable=True)  
     password = Column(String(150), nullable=False)
     tasks = relationship('Task', back_populates='owner')
 
@@ -30,7 +30,7 @@ class Task(Base):
     due_date = Column(Date, nullable=True)
     is_complete = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    important = Column(Boolean, default=False)  # New column
+    important = Column(Boolean, default=False)
     owner = relationship('User', back_populates='tasks')
     
     # Add created_at column to track task creation time

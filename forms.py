@@ -29,7 +29,7 @@ class TaskForm(FlaskForm):
         validators=[DataRequired()])
     due_date = DateField('Due Date', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Add Task')
-    important = BooleanField('Important')  # Add this line
+    important = BooleanField('Important') 
 
 class ProfileUpdateForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=4, max=150)])
